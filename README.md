@@ -37,7 +37,10 @@ Open your browser to `http://localhost:5173` to view the application.
 ## Screenshots
 _Placeholders for project documentation screenshots:_
 
-- **[Screenshot: Wallet Connected]**
-- **[Screenshot: Balance Shown]**
-- **[Screenshot: Transaction Success]**
-- **[Screenshot: Transaction Hash Visible]**
+- **[Screenshot: Wallet Connected]** - ![alt text](image.png)
+
+- **[Screenshot: Balance Shown]** - ![alt text](image-1.png)
+
+- **[Screenshot: Transaction Success]** - ![alt text](image-2.png)
+
+- **[Screenshot: Transaction Hash Visible]** - ![alt text](image-3.png)
