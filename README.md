@@ -35,12 +35,12 @@ Open your browser to `http://localhost:5173` to view the application.
 - You can fund your Testnet account using the [Stellar Laboratory Friendbot](https://laboratory.stellar.org/#account-creator?network=test).
 
 ## Deployed Contract
-- Contract Address: CDXZYQIOKU6JHHFC2BTKMJRAPNEH4GNWXCV6KSKXL5JRMR3B4MSBXQE7
+- Contract Address: CCXXO7A4IWIWSRUD7WHDBREXKQPVDFDLS3BRVB4DC3ADKBEIKRWHM47Z
 - Network: Stellar Testnet
 
 ## Transaction Hash of Contract Call
-- Hash: <add after first contract call>
-- Verify on: https://stellar.expert/explorer/testnet/tx/<hash>
+- Hash: fbb36760ca3ef1b0f4904f52011e10719309bfdaebe6318091e1d62a8e2be795
+- Verify on: https://stellar.expert/explorer/testnet/tx/fbb36760ca3ef1b0f4904f52011e10719309bfdaebe6318091e1d62a8e2be795
 
 ## Screenshots
 ### 1. Wallet Selection Modal
