@@ -44,22 +44,20 @@ Open your browser to `http://localhost:5173` to view the application.
 
 ## Screenshots
 ### 1. Wallet Selection Modal
-[Add screenshot here]
+![alt text](image-4.png)
 
 ### 2. Wallet Connected State  
-[Add screenshot here]
+![alt text](image-5.png)
 
 ### 3. XLM Balance Displayed
-[Add screenshot here]
+![alt text](image-6.png)
 
 ### 4. Contract Set Value Success
-[Add screenshot here]
+![alt text](image-7.png)
 
-### 5. Contract Get Value Response
-[Add screenshot here]
 
-### 6. Transaction Status (Pending/Success/Fail)
-[Add screenshot here]
+### 5. Transaction Status (Pending/Success/Fail)
+![alt text](image-8.png)
 
-### 7. Error Handling (wallet not found / rejected / insufficient balance)
-[Add screenshot here]
+### 6. Error Handling (wallet not found / rejected / insufficient balance)
+![alt text](image-9.png)
