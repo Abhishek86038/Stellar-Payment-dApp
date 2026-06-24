@@ -12,8 +12,7 @@ StellarWalletsKit.init({
 
 export const kit = StellarWalletsKit;
 
-const serverUrl = window.location.origin + "/horizon-api";
-const server = new Server(serverUrl, { allowHttp: true });
+const server = new Server("https://horizon-testnet.stellar.org");
 
 export const connectWallet = async () => {
   try {
@@ -29,17 +28,26 @@ export const connectWallet = async () => {
 };
 
 export const getBalance = async (publicKey) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
-    const account = await server.loadAccount(publicKey);
+    const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (response.status === 404) {
+      return "0";
+    }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const account = await response.json();
     const balance = account.balances.find((b) => b.asset_type === "native");
     return balance ? balance.balance : "0";
   } catch(e) {
+    clearTimeout(timeoutId);
     console.error("Error fetching balance:", e);
-    // Return error message to display on UI instead of silently failing to 0
-    if (e.response && e.response.status === 404) {
-      return "0 (Fund on Testnet)";
-    }
-    return "Error: " + (e.message || "Network issue");
+    return "Error (Check Console)";
   }
 };
 
