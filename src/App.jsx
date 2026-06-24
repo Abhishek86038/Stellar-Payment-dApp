@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { connectWallet, getBalance, sendPayment } from './stellar';
-import { setContractValue, getContractValue, CONTRACT_ADDRESS } from './contract';
+import { logPayment, getPaymentLog, getTotalByCategory, CONTRACT_ADDRESS } from './paymentLogger';
 import './index.css';
 
 function App() {
@@ -15,11 +15,16 @@ function App() {
   const [txHash, setTxHash] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Contract State
-  const [contractKey, setContractKey] = useState('');
-  const [contractValue, setContractValueState] = useState('');
-  const [contractResponse, setContractResponse] = useState('');
-  const [isContractLoading, setIsContractLoading] = useState(false);
+  // Payment Logger State
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [logCategory, setLogCategory] = useState('Other');
+  const [logNote, setLogNote] = useState('');
+  const [isLogging, setIsLogging] = useState(false);
+
+  // Insights & History State
+  const [paymentLogs, setPaymentLogs] = useState([]);
+  const [insights, setInsights] = useState({});
+  const categories = ['Rent', 'Family_Support', 'Business', 'Savings', 'Other']; // Ensure these match symbol requirements (no spaces)
 
   const fetchBalance = async (pubKey) => {
     try {
@@ -30,13 +35,30 @@ function App() {
     }
   };
 
-  // Poll contract state and balance every 10 seconds when connected
+  const fetchLogsAndInsights = async (pubKey) => {
+    try {
+      const logs = await getPaymentLog(pubKey);
+      setPaymentLogs(logs || []);
+      
+      const newInsights = {};
+      for (const cat of categories) {
+        const total = await getTotalByCategory(pubKey, cat);
+        newInsights[cat] = Number(total) / 10000000; // Convert stroops back to XLM
+      }
+      setInsights(newInsights);
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+    }
+  };
+
   useEffect(() => {
     if (!publicKey) return;
 
     const interval = setInterval(() => {
       fetchBalance(publicKey);
     }, 10000);
+
+    fetchLogsAndInsights(publicKey);
 
     return () => clearInterval(interval);
   }, [publicKey]);
@@ -48,6 +70,7 @@ function App() {
       const pubKey = await connectWallet();
       setPublicKey(pubKey);
       await fetchBalance(pubKey);
+      await fetchLogsAndInsights(pubKey);
     } catch (err) {
       setStatusType('failed');
       setStatus(`Error connecting wallet: ${err.message}`);
@@ -63,7 +86,9 @@ function App() {
     setAmount('');
     setStatus('');
     setTxHash('');
-    setContractResponse('');
+    setShowLogForm(false);
+    setPaymentLogs([]);
+    setInsights({});
   };
 
   const handleSend = async (e) => {
@@ -81,8 +106,9 @@ function App() {
       const response = await sendPayment(destination, amount, publicKey);
       setTxHash(response.hash || response.id);
       setStatusType('success');
-      setStatus('Transaction successful!');
-      await fetchBalance(publicKey); // Auto refresh balance
+      setStatus('Transaction successful! You can now log this payment.');
+      await fetchBalance(publicKey);
+      setShowLogForm(true); // Show log form after successful payment
     } catch (err) {
       setStatusType('failed');
       setStatus(`Transaction failed: ${err.message}`);
@@ -91,39 +117,25 @@ function App() {
     }
   };
 
-  const handleSetContract = async (e) => {
+  const handleLogPayment = async (e) => {
     e.preventDefault();
-    if (!contractKey || !contractValue) return;
+    if (!amount) return; // Use the amount from the previous transaction
     try {
-      setIsContractLoading(true);
+      setIsLogging(true);
       setStatusType('pending');
-      setStatus('Contract transaction submitted, waiting...');
+      setStatus('Logging payment on-chain, waiting...');
       setTxHash('');
-      const response = await setContractValue(contractKey, contractValue, publicKey);
+      const response = await logPayment(publicKey, logCategory, amount, logNote);
       setTxHash(response.hash || response.id);
       setStatusType('success');
-      setStatus('Contract Set successful!');
-      
-      // Auto-refresh the stored value
-      handleGetContract(null, contractKey);
+      setStatus('Payment logged successfully!');
+      setShowLogForm(false);
+      await fetchLogsAndInsights(publicKey); // Refresh logs and insights
     } catch (err) {
       setStatusType('failed');
-      setStatus(`Contract Set failed: ${err.message}`);
+      setStatus(`Logging failed: ${err.message}`);
     } finally {
-      setIsContractLoading(false);
-    }
-  };
-
-  const handleGetContract = async (e, overrideKey) => {
-    if (e) e.preventDefault();
-    const keyToUse = overrideKey || contractKey;
-    if (!keyToUse) return;
-    try {
-      setContractResponse('Fetching...');
-      const value = await getContractValue(keyToUse);
-      setContractResponse(`Value for ${keyToUse}: ${value}`);
-    } catch (err) {
-      setContractResponse(`Error: ${err.message}`);
+      setIsLogging(false);
     }
   };
 
@@ -131,7 +143,7 @@ function App() {
     <div className="container">
       <div className="card">
         <h1>Stellar Payment dApp</h1>
-        <p className="subtitle">Testnet Environment (Yellow Belt)</p>
+        <p className="subtitle">RemitFlow Payment Logger</p>
 
         {!publicKey ? (
           <button className="btn primary" onClick={handleConnect} disabled={loading}>
@@ -179,41 +191,86 @@ function App() {
               </button>
             </form>
 
-            <div className="contract-form">
-              <h3>Contract Interaction</h3>
-              <p className="small-text">Contract: <span className="truncate">{CONTRACT_ADDRESS}</span></p>
-              <div className="form-group">
-                <label>Key (Symbol)</label>
-                <input
-                  type="text"
-                  placeholder="my_key"
-                  value={contractKey}
-                  onChange={(e) => setContractKey(e.target.value)}
-                />
+            {showLogForm && (
+              <form onSubmit={handleLogPayment} className="contract-form">
+                <h3>Log this payment</h3>
+                <p className="small-text">Categorize your payment on-chain.</p>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select value={logCategory} onChange={(e) => setLogCategory(e.target.value)} required>
+                    {categories.map(cat => <option key={cat} value={cat}>{cat.replace('_', ' ')}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Short Note</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. June Rent"
+                    value={logNote}
+                    onChange={(e) => setLogNote(e.target.value)}
+                    maxLength={32}
+                  />
+                </div>
+                <button className="btn primary full" type="submit" disabled={isLogging}>
+                  {isLogging ? 'Logging...' : 'Log Payment'}
+                </button>
+              </form>
+            )}
+
+            <div className="insights-section" style={{ marginTop: '30px' }}>
+              <h3>Payment Insights</h3>
+              <p className="small-text">Total spent per category</p>
+              <div className="insights-bars">
+                {categories.map(cat => {
+                  const val = insights[cat] || 0;
+                  const maxVal = Math.max(...Object.values(insights).length ? Object.values(insights) : [1]);
+                  const width = maxVal > 0 ? (val / maxVal) * 100 : 0;
+                  return (
+                    <div key={cat} className="insight-row" style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                        <span>{cat.replace('_', ' ')}</span>
+                        <span>{val} XLM</span>
+                      </div>
+                      <div style={{ background: '#eee', height: '10px', borderRadius: '5px', overflow: 'hidden', marginTop: '4px' }}>
+                        <div style={{ background: '#007bff', height: '100%', width: `${width}%`, transition: 'width 0.3s ease' }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="form-group">
-                <label>Value (Number)</label>
-                <input
-                  type="number"
-                  placeholder="123"
-                  value={contractValue}
-                  onChange={(e) => setContractValueState(e.target.value)}
-                />
-              </div>
-              <div className="btn-group">
-                 <button className="btn primary" onClick={handleSetContract} disabled={isContractLoading || !contractKey || !contractValue}>
-                   {isContractLoading ? 'Processing...' : 'Set Value'}
-                 </button>
-                 <button className="btn secondary" onClick={(e) => handleGetContract(e)} disabled={!contractKey}>
-                   Get Value
-                 </button>
-              </div>
-              {contractResponse && (
-                <div className="contract-response">
-                  <strong>Response:</strong> {contractResponse}
+            </div>
+
+            <div className="log-section" style={{ marginTop: '30px' }}>
+              <h3>Payment Log</h3>
+              <p className="small-text">Your recent categorized payments</p>
+              {paymentLogs.length === 0 ? (
+                <p style={{ fontSize: '14px', color: '#666' }}>No payments logged yet.</p>
+              ) : (
+                <div className="log-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {paymentLogs.map((log, index) => {
+                    // Extract values properly from scval structure depending on stellar-sdk version
+                    // Note: We might need to handle properties gracefully
+                    const category = log.category || log[0] || 'Unknown';
+                    const amount = Number(log.amount || log[1] || 0) / 10000000;
+                    const note = log.note || log[2] || '';
+                    const timestamp = Number(log.timestamp || log[3] || 0);
+                    const date = timestamp ? new Date(timestamp * 1000).toLocaleString() : 'N/A';
+                    
+                    return (
+                      <div key={index} style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '8px', fontSize: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span style={{ background: '#e9ecef', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>{category.toString()}</span>
+                          <span style={{ fontWeight: 'bold' }}>{amount} XLM</span>
+                        </div>
+                        <div style={{ color: '#555', marginBottom: '5px' }}>{note.toString()}</div>
+                        <div style={{ color: '#888', fontSize: '12px' }}>{date}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
+
           </div>
         )}
 
