@@ -28,24 +28,14 @@ export const connectWallet = async () => {
 };
 
 export const getBalance = async (publicKey) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
-    const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}`, {
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (response.status === 404) {
-      return "0";
-    }
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const account = await response.json();
+    const account = await server.loadAccount(publicKey);
     const balance = account.balances.find((b) => b.asset_type === "native");
     return balance ? balance.balance : "0";
   } catch(e) {
-    clearTimeout(timeoutId);
+    if (e.response && e.response.status === 404) {
+      return "0";
+    }
     console.error("Error fetching balance:", e);
     return "Error (Check Console)";
   }

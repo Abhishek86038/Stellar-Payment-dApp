@@ -75,10 +75,16 @@ export const getPaymentLog = async (address) => {
     if (res.error) {
         throw new Error(res.error);
     }
-    if (!res.results || res.results.length === 0) {
+    
+    let resultVal;
+    if (res.result && res.result.retval) {
+        resultVal = res.result.retval;
+    } else if (res.results && res.results.length > 0) {
+        resultVal = res.results[0].retval;
+    } else {
         return [];
     }
-    const resultVal = res.results[0].retval;
+    
     return scValToNative(resultVal);
 };
 
@@ -101,9 +107,15 @@ export const getTotalByCategory = async (address, category) => {
     if (res.error) {
         throw new Error(res.error);
     }
-    if (!res.results || res.results.length === 0) {
+    
+    let resultVal;
+    if (res.result && res.result.retval) {
+        resultVal = res.result.retval;
+    } else if (res.results && res.results.length > 0) {
+        resultVal = res.results[0].retval;
+    } else {
         return 0;
     }
-    const resultVal = res.results[0].retval;
+    
     return scValToNative(resultVal);
 };
