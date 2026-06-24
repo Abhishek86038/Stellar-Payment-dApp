@@ -42,8 +42,8 @@ Open your browser to `http://localhost:5173` to view the application.
 - Network: Stellar Testnet
 
 ## Transaction Hash of Contract Call
-- Hash: c20be78d635f3aaf1ed62b676082797c391d21994d6edb04f3c461271996bc9bc
-- Verify on: https://stellar.expert/explorer/testnet/tx/c20be78d635f3aaf1ed62b676082797c391d21994d6edb04f3c461271996bc9bc
+- Hash: 617a4f0f7a7b224a738beff8cf8e14399ed79a69503842fcac7e7007dca2aec4
+- Verify on: https://stellar.expert/explorer/testnet/tx/617a4f0f7a7b224a738beff8cf8e14399ed79a69503842fcac7e7007dca2aec4
 
 ## Screenshots
 ### 1. Wallet Selection Modal
