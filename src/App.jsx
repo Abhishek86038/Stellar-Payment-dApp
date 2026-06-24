@@ -55,6 +55,8 @@ function App() {
   useEffect(() => {
     if (!publicKey) return;
 
+    fetchBalance(publicKey);
+
     const interval = setInterval(() => {
       fetchBalance(publicKey);
     }, 10000);
