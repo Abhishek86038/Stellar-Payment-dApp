@@ -29,12 +29,26 @@ export const connectWallet = async () => {
 
 export const getBalance = async (publicKey) => {
   try {
-    const account = await server.loadAccount(publicKey);
-    const balance = account.balances.find((b) => b.asset_type === "native");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (response.status === 404) {
+      return "0"; // Account not funded on Testnet
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const balance = data.balances.find((b) => b.asset_type === "native");
     return balance ? balance.balance : "0";
-  } catch(e) {
+  } catch (e) {
     console.error("Error fetching balance:", e);
-    return "0";
+    return "0 (Network Error)";
   }
 };
 
