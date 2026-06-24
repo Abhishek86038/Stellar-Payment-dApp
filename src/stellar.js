@@ -31,8 +31,7 @@ export const getBalance = async (publicKey) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
-    // Using corsproxy to bypass strict ISP blocks on stellar.org domains
-    const response = await fetch(`https://corsproxy.io/?https://horizon-testnet.stellar.org/accounts/${publicKey}`, {
+    const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}`, {
       signal: controller.signal
     });
     clearTimeout(timeoutId);
