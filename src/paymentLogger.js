@@ -31,7 +31,10 @@ export const logPayment = async (sender, category, amount, note) => {
 
     const preparedTransaction = await rpcServer.prepareTransaction(transaction);
     
-    const signedXdr = await kit.signTransaction(preparedTransaction.toXDR(), { networkPassphrase: Networks.TESTNET });
+    const signedXdr = await kit.signTransaction(preparedTransaction.toXDR(), { 
+        networkPassphrase: Networks.TESTNET,
+        address: sender
+    });
     let txToSubmit;
     if (typeof signedXdr === 'string') {
         txToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
