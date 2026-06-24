@@ -1,7 +1,8 @@
 import { Contract, rpc as SorobanRpc, TransactionBuilder, Networks, nativeToScVal, scValToNative, Address } from "@stellar/stellar-sdk";
 import { kit } from "./stellar";
 
-const rpcServer = new SorobanRpc.Server("https://soroban-testnet.stellar.org");
+const rpcServerUrl = window.location.origin + "/soroban-api";
+const rpcServer = new SorobanRpc.Server(rpcServerUrl, { allowHttp: true });
 export const CONTRACT_ADDRESS = "CCJYU62FU5HJVGQ6D3JB6M6FRAWBVR52T22WJGW3VJUZ6A7QB6JGHPV7";
 
 export const initContract = () => {
@@ -31,10 +32,7 @@ export const logPayment = async (sender, category, amount, note) => {
 
     const preparedTransaction = await rpcServer.prepareTransaction(transaction);
     
-    const signedXdr = await kit.signTransaction(preparedTransaction.toXDR(), { 
-        networkPassphrase: Networks.TESTNET,
-        address: sender
-    });
+    const signedXdr = await kit.signTransaction(preparedTransaction.toXDR(), { networkPassphrase: Networks.TESTNET });
     let txToSubmit;
     if (typeof signedXdr === 'string') {
         txToSubmit = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);

@@ -12,5 +12,19 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['@stellar/stellar-sdk/horizon']
+  },
+  server: {
+    proxy: {
+      '/horizon-api': {
+        target: 'https://horizon-testnet.stellar.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/horizon-api/, '')
+      },
+      '/soroban-api': {
+        target: 'https://soroban-testnet.stellar.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/soroban-api/, '')
+      }
+    }
   }
 })
