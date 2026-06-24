@@ -1,8 +1,7 @@
-import { Contract, rpc as SorobanRpc, TransactionBuilder, Networks, nativeToScVal, scValToNative, Address } from "@stellar/stellar-sdk";
+import { Contract, rpc as SorobanRpc, TransactionBuilder, Networks, nativeToScVal, scValToNative, Address, Account } from "@stellar/stellar-sdk";
 import { kit } from "./stellar";
 
-const rpcServerUrl = window.location.origin + "/soroban-api";
-const rpcServer = new SorobanRpc.Server(rpcServerUrl, { allowHttp: true });
+const rpcServer = new SorobanRpc.Server("https://soroban-testnet.stellar.org");
 export const CONTRACT_ADDRESS = "CCJYU62FU5HJVGQ6D3JB6M6FRAWBVR52T22WJGW3VJUZ6A7QB6JGHPV7";
 
 export const initContract = () => {
@@ -63,7 +62,7 @@ export const getPaymentLog = async (address) => {
     const contract = initContract();
     
     const source = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-    const account = new SorobanRpc.Account(source, "0");
+    const account = new Account(source, "0");
     const transaction = new TransactionBuilder(account, {
         fee: "100",
         networkPassphrase: Networks.TESTNET,
@@ -89,7 +88,7 @@ export const getTotalByCategory = async (address, category) => {
     const contract = initContract();
     
     const source = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-    const account = new SorobanRpc.Account(source, "0");
+    const account = new Account(source, "0");
     const transaction = new TransactionBuilder(account, {
         fee: "100",
         networkPassphrase: Networks.TESTNET,
