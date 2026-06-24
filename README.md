@@ -1,11 +1,14 @@
 # Stellar testnet Payment dApp
 
+This dApp solves a real gap in the Stellar ecosystem: Stellar payments have no native way to categorize or track what a transaction was for. RemitFlow Payment Logger adds an on-chain categorization layer, useful for remittance senders, freelancers, and small businesses tracking their XLM payment history by category (rent, family support, business, savings, etc.).
+
 A fully functional web application that allows users to connect their Freighter wallet, view their Stellar Testnet XLM balance, and send XLM to other addresses on the Testnet. This app interacts directly with the Stellar Horizon Testnet via the official SDKs.
 
 ## Features
 - **Wallet Connection**: Connects to the Freighter browser extension to securely access the user's Stellar public key.
 - **Balance Display**: Fetches the actual XLM balance from the Horizon Testnet API.
 - **Send Payments**: Allows users to transfer XLM by constructing, signing, and submitting transactions to the Testnet.
+- **Payment Categorization**: Helps Stellar users categorize and track what their XLM payments were for, solving the lack of native expense tracking on Stellar transactions.
 
 ## Technologies Used
 - React
@@ -35,12 +38,12 @@ Open your browser to `http://localhost:5173` to view the application.
 - You can fund your Testnet account using the [Stellar Laboratory Friendbot](https://laboratory.stellar.org/#account-creator?network=test).
 
 ## Deployed Contract
-- Contract Address: CCAPG2U42HTAHWLUY46I5J5ZQ7V6CKUC2NXZWNUXMBO7RAV3NNYPXJOA
+- Contract Address: CC3LPZN2ERYLRCTZ66QC7M6W2H4DS5VR7IJTKCEEBXT2TBKDJDFUKJBE
 - Network: Stellar Testnet
 
 ## Transaction Hash of Contract Call
-- Hash: fbb36760ca3ef1b0f4904f52011e10719309bfdaebe6318091e1d62a8e2be795
-- Verify on: https://stellar.expert/explorer/testnet/tx/fbb36760ca3ef1b0f4904f52011e10719309bfdaebe6318091e1d62a8e2be795
+- Hash: 3819d40e526f52147f4815c2785a4cdd1b887060151ef33b61320544d3bd50ec
+- Verify on: https://stellar.expert/explorer/testnet/tx/3819d40e526f52147f4815c2785a4cdd1b887060151ef33b61320544d3bd50ec
 
 ## Screenshots
 ### 1. Wallet Selection Modal
