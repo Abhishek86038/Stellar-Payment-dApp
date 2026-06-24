@@ -2,7 +2,7 @@ import { Contract, rpc as SorobanRpc, TransactionBuilder, Networks, nativeToScVa
 import { kit } from "./stellar";
 
 const rpcServer = new SorobanRpc.Server("https://soroban-testnet.stellar.org");
-export const CONTRACT_ADDRESS = "CC3LPZN2ERYLRCTZ66QC7M6W2H4DS5VR7IJTKCEEBXT2TBKDJDFUKJBE";
+export const CONTRACT_ADDRESS = "CCJYU62FU5HJVGQ6D3JB6M6FRAWBVR52T22WJGW3VJUZ6A7QB6JGHPV7";
 
 export const initContract = () => {
     return new Contract(CONTRACT_ADDRESS);
