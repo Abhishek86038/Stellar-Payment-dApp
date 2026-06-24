@@ -13,7 +13,8 @@ function App() {
   const [status, setStatus] = useState('');
   const [statusType, setStatusType] = useState(''); // pending, success, failed
   const [txHash, setTxHash] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   // Payment Logger State
   const [showLogForm, setShowLogForm] = useState(false);
@@ -66,16 +67,14 @@ function App() {
   const handleConnect = async () => {
     try {
       setStatus('');
-      setLoading(true);
+      setIsConnecting(true);
       const pubKey = await connectWallet();
       setPublicKey(pubKey);
-      await fetchBalance(pubKey);
-      await fetchLogsAndInsights(pubKey);
     } catch (err) {
       setStatusType('failed');
       setStatus(`Error connecting wallet: ${err.message}`);
     } finally {
-      setLoading(false);
+      setIsConnecting(false);
     }
   };
 
@@ -102,7 +101,7 @@ function App() {
       setStatusType('pending');
       setStatus('Transaction submitted, waiting...');
       setTxHash('');
-      setLoading(true);
+      setIsSending(true);
       const response = await sendPayment(destination, amount, publicKey);
       setTxHash(response.hash || response.id);
       setStatusType('success');
@@ -113,7 +112,7 @@ function App() {
       setStatusType('failed');
       setStatus(`Transaction failed: ${err.message}`);
     } finally {
-      setLoading(false);
+      setIsSending(false);
     }
   };
 
@@ -146,8 +145,8 @@ function App() {
         <p className="subtitle">RemitFlow Payment Logger</p>
 
         {!publicKey ? (
-          <button className="btn primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Connecting...' : 'Connect Wallet'}
+          <button className="btn primary" onClick={handleConnect} disabled={isConnecting}>
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </button>
         ) : (
           <div className="wallet-info">
@@ -186,8 +185,8 @@ function App() {
                   required
                 />
               </div>
-              <button className="btn primary full" type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Send Transaction'}
+              <button className="btn primary full" type="submit" disabled={isSending}>
+                {isSending ? 'Processing...' : 'Send Transaction'}
               </button>
             </form>
 
